@@ -8,13 +8,18 @@ export abstract class Document {
     const errors: string[] = []; // declare error array
     const Model = require(`./${this.constructor.name.toLowerCase()}/${this.constructor.name.toLowerCase()}.json`); // get schema
     // Check for required fields based on model definition
-    console.log(this.data, "data");
+
+    const modelFields = Model.fields.map((obj) => {
+      return obj.name;
+    });
+    this.cleanData(modelFields);
+    console.log(this.data, "this");
+
     for (let field of Model.fields) {
       if (field.required == true && !this.data[field.name]) {
         errors.push(`${field.name} is required`);
       }
       if (field.maxLength && this.data[field.name] > field.maxLength) {
-        
         errors.push(`${field.name} has exceed the maxmium value`);
       }
     }
@@ -26,6 +31,15 @@ export abstract class Document {
       errors.push("Invalid Age passed in ");
     }
     return errors.length > 0 ? errors : null;
+  }
+  cleanData(fields: string[]) {
+    const newObj = {};
+    for (const key in this.data) {
+      if (fields.includes(key)) {
+        newObj[key] = this.data[key];
+      }
+    }
+    this.data = { ...newObj };
   }
 
   validateEmail(email: string): boolean {

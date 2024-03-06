@@ -37,12 +37,12 @@ app.post("/api/v1/models/:modelName", async (req, res) => {
     const Db = require(`../models/${modelName}/${modelName}Db.json`);
     const cleanedData = new Schema(req.body);
     const validationErrors = cleanedData.validate();
-    console.log(validationErrors, "data");
+    console.log(validationErrors, "data", cleanedData.data);
 
     try {
       if (validationErrors == null) {
         const data = { ...req.body, id: Db.length };
-        Db.push(data);
+        Db.push(cleanedData.data);
         writeFile(
           `./models/${modelName}/${modelName}Db.json`,
           JSON.stringify(Db),
@@ -62,7 +62,7 @@ app.post("/api/v1/models/:modelName", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      error: error,
+      error: "error occured trying to create data",
     });
   }
 });
